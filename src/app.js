@@ -92,7 +92,17 @@ mongoose.connect('mongodb://localhost:27017/mydatabase', {
       res.status(500).json({ message: err.message });
     }
   });
-
+  app.use((err, req, res, next) => {
+    console.error(err.stack); // Log the error stack trace for debugging
+  
+    // Set the response status code and send the error message
+    res.status(err.status || 500).json({
+      error: {
+        message: err.message,
+        status: err.status || 500
+      }
+    });
+  });
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
