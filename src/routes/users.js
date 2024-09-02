@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const { authenticateToken, authorizeRole } = require('../middleware/auth');
+const logger = require('../config');
 
 // Create a new user (accessible to admins)
 router.post('/', authenticateToken, authorizeRole('admin'), async (req, res) => {
@@ -10,6 +11,7 @@ router.post('/', authenticateToken, authorizeRole('admin'), async (req, res) => 
     await user.save();
     res.status(201).json(user);
   } catch (err) {
+    logger.error(`Error creating user: ${err.message}`);
     res.status(400).json({ message: err.message });
   }
 });
@@ -17,9 +19,11 @@ router.post('/', authenticateToken, authorizeRole('admin'), async (req, res) => 
 // Read all users (accessible to admins)
 router.get('/', authenticateToken, authorizeRole('admin'), async (req, res) => {
   try {
+    console.log("came to get ")
     const users = await User.find();
     res.status(200).json(users);
   } catch (err) {
+    logger.error(`Error finding user: ${err.message}`);
     res.status(500).json({ message: err.message });
   }
 });
@@ -35,6 +39,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
       res.sendStatus(403);
     }
   } catch (err) {
+    logger.error(`Error getting user: ${err.message}`);
     res.status(500).json({ message: err.message });
   }
 });
@@ -52,6 +57,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
       res.sendStatus(403);
     }
   } catch (err) {
+    logger.error(`Error updating user: ${err.message}`);
     res.status(400).json({ message: err.message });
   }
 });
@@ -63,8 +69,9 @@ router.delete('/:id', authenticateToken, authorizeRole('admin'), async (req, res
     if (!user) return res.status(404).json({ message: 'User not found' });
     res.status(200).json({ message: 'User deleted' });
   } catch (err) {
+    logger.error(`Error deleting user: ${err.message}`);
     res.status(500).json({ message: err.message });
   }
-});ś
+});
 
 module.exports = router;
